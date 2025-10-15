@@ -1,0 +1,17 @@
+[project]
+name = "testtaskbmw"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Vadim Popovych",email = "zyzel19@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "whisperx (>=3.7.2,<4.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
