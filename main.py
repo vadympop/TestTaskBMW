@@ -1,10 +1,17 @@
 from src.transcribing import transcribe
+from pathlib import Path
 
 
 def main() -> None:
-    audio_file = "data/calls/2025-08-04_12-50_0934991939_incoming.mp3"
-    with open("data/transcript.txt", "w", encoding="utf8") as f:
-        f.write(transcribe(audio_file))
+    files_dir = Path("data/calls")
+    for audio_file in files_dir.rglob("*.mp3"):
+        transcribe(
+            str(audio_file),
+            hf_token="",
+            device="cuda",
+            compute_type="float16",
+            output_path=str(audio_file.with_suffix(".txt")),
+        )
 
 if __name__ == "__main__":
     main()
