@@ -1,4 +1,5 @@
 import csv
+from openpyxl import load_workbook, Workbook
 
 from src.models import AnswerResult
 
@@ -12,11 +13,11 @@ def save_to_csv(
     """
     Saves results to a csv file according to save_to_column field
 
-    :param csv_filename: str
-    :param transcript: str
-    :param transcript_column: int
-    :param results: list[AnswerResult]
-    :return:
+    :param csv_filename: Path .csv file
+    :param transcript: The transcript text to save
+    :param transcript_column: Column index (1-based) for transcript
+    :param results: List of AnswerResult objects
+    :return: None
     """
     # Add to the columns transcript text
     results.append(AnswerResult(answer=transcript, save_to_column=transcript_column))
@@ -48,3 +49,76 @@ def save_to_csv(
     with open(csv_filename, "a", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(row)
+
+
+def save_to_excel(
+        excel_filename: str,
+        transcript: str,
+        transcript_column: int,
+        results: list[AnswerResult]
+) -> None:
+    """
+    Saves results to an Excel (.xlsx) file according to save_to_column field.
+
+    :param excel_filename: Path to .xlsx file
+    :param transcript: The transcript text to save
+    :param transcript_column: Column index (1-based) for transcript
+    :param results: List of AnswerResult objects
+    :return: None
+    """
+    # Add transcript as one of the results
+    results.append(AnswerResult(answer=transcript, save_to_column=transcript_column))
+    results.sort(key=lambda r: r.save_to_column)
+
+    # Try to open existing workbook, or create a new one if not found
+    try:
+        wb = load_workbook(excel_filename)
+        ws = wb.active
+    except FileNotFoundError:
+        wb = Workbook()
+        ws = wb.active
+
+    # Determine number of columns - either from sheet or from max(save_to_column)
+    columns_count = ws.max_column if ws.max_column > 0 else 0
+    columns_count = max(
+        columns_count,
+        max(r.save_to_column for r in results)
+    )
+
+    # Prepare the row with all empty cells
+    row = ["" for _ in range(columns_count)]
+
+    # Fill in cells according to save_to_column
+    for r in results:
+        if 0 < r.save_to_column <= columns_count:
+            row[r.save_to_column - 1] = r.answer
+
+    # Append the row at the end
+    ws.append(row)
+    wb.save(excel_filename)
+
+
+def save_to_file(
+        filename: str,
+        transcript: str,
+        transcript_column: int,
+        results: list[AnswerResult]
+) -> None:
+    """
+    Saves results to a file.
+
+    :param filename: Path to .csv of .xlsx file
+    :param transcript: The transcript text to save
+    :param transcript_column: Column index (1-based) for transcript
+    :param results: List of AnswerResult objects
+    :return: None
+
+    :raise: TypeError
+    """
+    filetype = filename.partition(".")[2]
+    if filetype == "csv":
+        save_to_csv(filename, transcript, transcript_column, results)
+    elif filetype == "xlsx":
+        save_to_excel(filename, transcript, transcript_column, results)
+    else:
+        raise TypeError(f"Unsupported file type: {filetype}")

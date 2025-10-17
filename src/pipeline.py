@@ -3,7 +3,7 @@ from pathlib import Path
 from src.services.chatgpt import get_questions_answers
 from src.config import Config
 from src.convert import ai_answers_to_result
-from src.services.saving import save_to_csv
+from src.services.saving import save_to_file
 from src.services.transcribing import transcribe
 
 
@@ -30,8 +30,8 @@ def run_pipeline(config: Config, audio_file: Path | str) -> None:
         api_key=config.env.openai_token.get_secret_value(),
         questions=config.questions_config.questions
     )
-    save_to_csv(
-        csv_filename=,
+    save_to_file(
+        filename=,
         transcript=transcript,
         transcript_column=1,
         results=ai_answers_to_result(answers, config)
