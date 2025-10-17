@@ -1,7 +1,11 @@
 import subprocess
 from pathlib import Path
 
-def convert_to_wav(input_path: str, output_path: str) -> None:
+from src.config import Config
+from src.models import AIAnswersOutput, AnswerResult
+
+
+def convert_audio_to_wav(input_path: str, output_path: str) -> None:
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         "ffmpeg", "-y",
@@ -12,3 +16,14 @@ def convert_to_wav(input_path: str, output_path: str) -> None:
         output_path
     ]
     subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def ai_answers_to_result(ai_output: AIAnswersOutput, config: Config) -> list[AnswerResult]:
+    return [
+        AnswerResult(
+            answer=ai.answer,
+            save_to_column=config.questions_config.questions[ai.index].save_to_column
+        )
+        for ai in ai_output.answers
+    ]
+

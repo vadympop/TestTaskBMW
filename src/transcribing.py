@@ -3,7 +3,7 @@ import gc
 import torch
 
 from whisperx.diarize import DiarizationPipeline
-from src.convert import convert_to_wav
+from src.convert import convert_audio_to_wav
 
 
 torch.backends.cuda.matmul.allow_tf32 = False
@@ -20,7 +20,7 @@ def transcribe(
         output_path: str = None
 ) -> str:
     converted_audio_output = "converted_audio.wav"
-    convert_to_wav(audio_file, converted_audio_output)
+    convert_audio_to_wav(audio_file, converted_audio_output)
 
     model = whisperx.load_model("large-v3", device, compute_type=compute_type)
 
