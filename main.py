@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from src.config import Config
-from src.pipeline import pipeline
+from src.pipeline import run_pipeline
 
 
 def main() -> None:
@@ -9,7 +9,7 @@ def main() -> None:
 
     files_dir = Path("data/calls")
     for audio_file in files_dir.rglob("*.mp3"):
-        pipeline(config, audio_file)
+        run_pipeline(config, audio_file)
 
 if __name__ == "__main__":
     main()

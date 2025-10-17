@@ -19,6 +19,19 @@ def transcribe(
         compute_type: str = "float16", # change to "int8" if low on GPU mem (may reduce accuracy)
         output_path: str = None
 ) -> str:
+    """
+    Applies whisper large-v3 language model to transcript text from converted to wav audio file,
+    and then use diarization model from huggingface service to separate text by speakers.
+    If specified output_path writes transcribed text to file
+
+    :param audio_file: str
+    :param hf_token: str
+    :param device: str
+    :param batch_size: int
+    :param compute_type: str
+    :param output_path: str
+    :return: transcribed text(str)
+    """
     converted_audio_output = "converted_audio.wav"
     convert_audio_to_wav(audio_file, converted_audio_output)
 
@@ -34,7 +47,6 @@ def transcribe(
     # delete model if low on GPU resources
     gc.collect(); torch.cuda.empty_cache(); del model
 
-    # 2. Align whisper output
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
 

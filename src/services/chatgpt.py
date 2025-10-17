@@ -4,6 +4,14 @@ from src.models import AIAnswersOutput, QuestionInstruction
 
 
 def get_questions_answers(transcript: str, api_key: str, questions: list[QuestionInstruction]) -> AIAnswersOutput:
+    """
+    Use openai API(chatgpt) to get answers for specified questions from transcribed text.
+
+    :param transcript: str
+    :param api_key: str
+    :param questions: list[QuestionInstruction]
+    :return: AiAnswersOutput
+    """
     client = OpenAI(api_key=api_key)
     formatted_questions = [
         f"#{i} {q.text}. Формат відповіді: {q.answer_format}" for i, q in enumerate(questions)

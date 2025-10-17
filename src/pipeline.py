@@ -7,7 +7,14 @@ from src.services.saving import save_to_csv
 from src.services.transcribing import transcribe
 
 
-def pipeline(config: Config, audio_file: Path | str) -> None:
+def run_pipeline(config: Config, audio_file: Path | str) -> None:
+    """
+    Runs the pipeline and saves the results.
+
+    :param config:
+    :param audio_file:
+    :return:
+    """
     if isinstance(audio_file, str):
         audio_file = Path(audio_file)
 
