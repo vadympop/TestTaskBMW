@@ -1,6 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr, BaseModel
 
+from src.models import QuestionInstruction
+
 
 class EnvConfig(BaseSettings):
     hf_token: SecretStr
@@ -14,28 +16,22 @@ class EnvConfig(BaseSettings):
     )
 
 
-class QuestionAnswering(BaseModel):
-    text: str
-    answer_format: str
-    save_to_column: int
-
-
-class QuestionAnsweringConfig(BaseModel):
-    questions: list[QuestionAnswering]
+class QuestionInstructionsConfig(BaseModel):
+    questions: list[QuestionInstruction]
 
     @classmethod
-    def load_config(cls, filename: str) -> "QuestionAnsweringConfig":
+    def load_config(cls, filename: str) -> "QuestionInstructionsConfig":
         with open(filename, "r", encoding="utf-8") as f:
             return cls.model_validate_json(f)
 
 
 class Config(BaseModel):
     env: EnvConfig
-    questions_config: QuestionAnsweringConfig
+    questions_config: QuestionInstructionsConfig
 
     @classmethod
     def load_config(cls, filename: str = "questions.json") -> "Config":
         return cls(
             env=EnvConfig(),
-            questions_config=QuestionAnsweringConfig.load_config(filename)
+            questions_config=QuestionInstructionsConfig.load_config(filename)
         )

@@ -2,8 +2,19 @@ from pathlib import Path
 
 from src.chatgpt import get_questions_answers
 from src.config import Config
+from src.models import AIAnswersOutput, AnswerResult
 from src.saving import save_to_csv
 from src.transcribing import transcribe
+
+
+def ai_answers_to_result(ai_output: AIAnswersOutput, config: Config) -> list[AnswerResult]:
+    return [
+        AnswerResult(
+            answer=ai.answer,
+            save_to_column=config.questions_config.questions[ai.index].save_to_column
+        )
+        for ai in ai_output.answers
+    ]
 
 
 def pipeline(config: Config, audio_file: Path | str) -> None:
@@ -23,8 +34,10 @@ def pipeline(config: Config, audio_file: Path | str) -> None:
         questions=config.questions_config.questions
     )
     save_to_csv(
+        csv_filename=,
         transcript=transcript,
-
+        transcript_column=1,
+        results=ai_answers_to_result(answers, config)
     )
 
 

@@ -1,1 +1,1 @@
-from .config_parser import Config, QuestionAnswering
+from .config_parser import Config, QuestionInstruction
