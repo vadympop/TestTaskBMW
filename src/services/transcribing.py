@@ -32,6 +32,10 @@ def transcribe(
     :param output_path: str
     :return: transcribed text(str)
     """
+    if not torch.cuda.is_available():
+        device = "cpu"
+        compute_type = "int8"
+
     converted_audio_output = "converted_audio.wav"
     convert_audio_to_wav(audio_file, converted_audio_output)
 
