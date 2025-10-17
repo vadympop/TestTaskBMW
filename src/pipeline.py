@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from src.chatgpt import get_questions_answers
+from src.services.chatgpt import get_questions_answers
 from src.config import Config
 from src.convert import ai_answers_to_result
-from src.saving import save_to_csv
-from src.transcribing import transcribe
+from src.services.saving import save_to_csv
+from src.services.transcribing import transcribe
 
 
 def pipeline(config: Config, audio_file: Path | str) -> None:
