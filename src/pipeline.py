@@ -7,10 +7,11 @@ from src.services.saving import save_to_file
 from src.services.transcribing import transcribe
 
 
-def run_pipeline(config: Config, audio_file: Path | str) -> None:
+def run_pipeline(config: Config, sheet_file: str, audio_file: Path | str) -> None:
     """
     Runs the pipeline and saves the results.
 
+    :param sheet_file:
     :param config:
     :param audio_file:
     :return:
@@ -31,7 +32,7 @@ def run_pipeline(config: Config, audio_file: Path | str) -> None:
         questions=config.questions_config.questions
     )
     save_to_file(
-        filename=,
+        filename=sheet_file,
         transcript=transcript,
         transcript_column=1,
         results=ai_answers_to_result(answers, config)
