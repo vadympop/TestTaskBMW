@@ -46,7 +46,7 @@ def save_to_csv(
 
         row.append("")
 
-    with open(csv_filename, "a", newline="") as csvfile:
+    with open(csv_filename, "a", newline="", encoding="utf8") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(row)
 
