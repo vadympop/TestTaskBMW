@@ -22,7 +22,7 @@ class QuestionInstructionsConfig(BaseModel):
     @classmethod
     def load_config(cls, filename: str) -> "QuestionInstructionsConfig":
         with open(filename, "r", encoding="utf-8") as f:
-            return cls.model_validate_json(f)
+            return cls.model_validate_json(f.read())
 
 
 class Config(BaseModel):
@@ -30,7 +30,7 @@ class Config(BaseModel):
     questions_config: QuestionInstructionsConfig
 
     @classmethod
-    def load_config(cls, filename: str = "questions.json") -> "Config":
+    def load_config(cls, filename: str = "src/config/questions.json") -> "Config":
         return cls(
             env=EnvConfig(),
             questions_config=QuestionInstructionsConfig.load_config(filename)
