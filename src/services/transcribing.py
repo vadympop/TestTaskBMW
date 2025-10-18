@@ -1,5 +1,4 @@
 import logging
-
 import whisperx
 import gc
 import torch
@@ -37,15 +36,21 @@ def transcribe(
     :param output_path: str
     :return: transcribed text(str)
     """
+    model = "large-v3"
+
     if not torch.cuda.is_available():
         device = "cpu"
         compute_type = "int8"
         logger.warning("No cuda available, using cpu instead")
+    else:
+        vram_size = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+        if vram_size < 7:
+            model = "medium"
 
     converted_audio_output = "converted_audio.wav"
     convert_audio_to_wav(audio_file, converted_audio_output)
 
-    model = whisperx.load_model("large-v3", device, compute_type=compute_type)
+    model = whisperx.load_model(model, device, compute_type=compute_type)
     logger.info("Loaded whisper model")
 
     audio = whisperx.load_audio(converted_audio_output)
@@ -74,6 +79,8 @@ def transcribe(
 
     result = whisperx.assign_word_speakers(diarize_segments, result)
     logger.info("Audio was diarized")
+
+    gc.collect(); torch.cuda.empty_cache(); del diarize_model
 
     lines = []
     last_speaker = None
