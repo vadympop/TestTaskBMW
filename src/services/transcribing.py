@@ -1,4 +1,6 @@
 import logging
+import time
+
 import whisperx
 import gc
 import torch
@@ -37,6 +39,7 @@ def transcribe(
     :return: transcribed text(str)
     """
     model = "large-v3"
+    start_time = time.time()
 
     if not torch.cuda.is_available():
         device = "cpu"
@@ -44,18 +47,18 @@ def transcribe(
         logger.warning("No cuda available, using cpu instead")
     else:
         vram_size = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
-        if vram_size < 7:
+        if vram_size < 7.5:
             model = "medium"
 
     converted_audio_output = "converted_audio.wav"
     convert_audio_to_wav(audio_file, converted_audio_output)
 
     model = whisperx.load_model(model, device, compute_type=compute_type)
-    logger.info("Loaded whisper model")
+    logger.info("Whisper model was loaded")
 
     audio = whisperx.load_audio(converted_audio_output)
     result = model.transcribe(audio, language="uk", batch_size=batch_size)
-    logger.info("Transcribed audio")
+    logger.info("Audio was transcribed")
 
     # print("Before alignment:")
     # for x in result["segments"]:
@@ -99,5 +102,9 @@ def transcribe(
     if output_path:
         with open(output_path, "w", encoding="utf8") as f:
             f.write(result)
+
+    finish_time = time.time()
+
+    logger.info(f"Finished transcribing in {finish_time - start_time}s")
 
     return result

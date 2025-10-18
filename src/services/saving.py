@@ -1,7 +1,11 @@
 import csv
+import logging
+
 from openpyxl import load_workbook, Workbook
 
 from src.models import AnswerResult
+
+logger = logging.getLogger(__name__)
 
 
 def save_to_csv(
@@ -19,6 +23,8 @@ def save_to_csv(
     :param results: List of AnswerResult objects
     :return: None
     """
+    logger.info(f"Saving results to csv {csv_filename}")
+
     # Add to the columns transcript text
     results.append(AnswerResult(answer=transcript, save_to_column=transcript_column))
     results.sort(key=lambda r: r.save_to_column)
@@ -66,6 +72,8 @@ def save_to_excel(
     :param results: List of AnswerResult objects
     :return: None
     """
+    logger.info(f"Saving results to excel {excel_filename}")
+
     # Add transcript as one of the results
     results.append(AnswerResult(answer=transcript, save_to_column=transcript_column))
     results.sort(key=lambda r: r.save_to_column)

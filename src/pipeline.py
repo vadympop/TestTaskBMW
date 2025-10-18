@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from src.services.chatgpt import get_questions_answers
@@ -6,6 +7,8 @@ from src.convert import ai_answers_to_result
 from src.services.saving import save_to_file
 from src.services.transcribing import transcribe
 
+
+logger = logging.getLogger(__name__)
 
 def run_pipeline(config: Config, sheet_file: str, audio_file: Path | str) -> None:
     """
@@ -16,6 +19,8 @@ def run_pipeline(config: Config, sheet_file: str, audio_file: Path | str) -> Non
     :param audio_file:
     :return:
     """
+    logger.info(f"Running pipeline for {audio_file}")
+
     if isinstance(audio_file, str):
         audio_file = Path(audio_file)
 
@@ -37,3 +42,5 @@ def run_pipeline(config: Config, sheet_file: str, audio_file: Path | str) -> Non
         transcript_column=1,
         results=ai_answers_to_result(answers, config)
     )
+
+    logger.info(f"Finished pipeline for {audio_file}")

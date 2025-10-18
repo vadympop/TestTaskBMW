@@ -1,0 +1,41 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "default": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        }
+    },
+    "handlers": {
+        "nullable": {
+            "formatter": "default",
+            "class": "logging.NullHandler"
+        },
+        "console_handler": {
+           "class": "logging.StreamHandler",
+           "level": "INFO",
+           "formatter": "default",
+           "stream": "ext://sys.stdout"
+       }
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": ["console_handler"]
+    },
+    "loggers": {
+        "speechbrain": {
+            "level": "INFO",
+            "handlers": [
+                "nullable"
+            ],
+            "propagate": false
+        },
+        "httpx": {
+            "level": "INFO",
+            "handlers": [
+                "nullable"
+            ],
+            "propagate": false
+        }
+    }
+}

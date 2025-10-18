@@ -1,6 +1,10 @@
+import json
 import os.path
 import warnings
 import typer
+import logging.config
+
+warnings.filterwarnings("ignore", category=UserWarning)
 
 from pathlib import Path
 from itertools import chain
@@ -8,10 +12,13 @@ from itertools import chain
 from src.config import Config
 from src.pipeline import run_pipeline
 
-warnings.filterwarnings("ignore", category=UserWarning)
 
 tapp = typer.Typer()
 config = Config.load_config()
+
+# Loading logging config
+with open("logging.json", "r", encoding="utf-8") as f:
+    logging.config.dictConfig(json.loads(f.read()))
 
 
 def _validate_paths(audio_path: Path, sheet_path: str) -> None:
