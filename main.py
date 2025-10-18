@@ -9,7 +9,7 @@ def main() -> None:
 
     files_dir = Path("data/calls")
     for audio_file in files_dir.rglob("*.mp3"):
-        run_pipeline(config, audio_file)
+        run_pipeline(config, "sheet.xlsx", audio_file)
 
 if __name__ == "__main__":
     main()
