@@ -16,6 +16,31 @@ torch.backends.cudnn.allow_tf32 = False
 logger = logging.getLogger(__name__)
 
 
+def format_diarized_text(diarized_text: dict) -> str:
+    """
+    Format diarized text into a string with format:
+    [SPEAKER 0] Text Text Text\n
+    [SPEAKER 1] ...
+
+    :param diarized_text: Result of diarization pipeline
+    :return: Formatted text
+    """
+    lines = []
+    last_speaker = None
+    for x in diarized_text["segments"]:
+        # In case if segment has no assigment speaker at all
+        if x.get("speaker") is None:
+            x["speaker"] = last_speaker
+
+        if last_speaker is None or x["speaker"] != last_speaker:
+            lines.append([f"[{x["speaker"]}]"])
+            last_speaker = x["speaker"]
+
+        lines[-1].append(x["text"].strip())
+
+    return "\n".join([" ".join(line) for line in lines])
+
+
 def transcribe(
         audio_file: str,
         *,
@@ -60,19 +85,11 @@ def transcribe(
     result = model.transcribe(audio, language="uk", batch_size=batch_size)
     logger.info("Audio was transcribed")
 
-    # print("Before alignment:")
-    # for x in result["segments"]:
-    #     print(f"[{x['start']} --> {x['end']}] {x['text']}")
-
     # delete model if low on GPU resources
     gc.collect(); torch.cuda.empty_cache(); del model
 
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
-
-    # print("\n\nAfter alignment:")
-    # for x in result["segments"]:
-    #     print(f"[{x['start']} --> {x['end']}] {x['text']}")
 
     # delete model if low on GPU resources
     gc.collect(); torch.cuda.empty_cache(); del model_a
@@ -85,20 +102,7 @@ def transcribe(
 
     gc.collect(); torch.cuda.empty_cache(); del diarize_model
 
-    lines = []
-    last_speaker = None
-    for x in result["segments"]:
-        # In case if segment has no assigment speaker at all
-        if x.get("speaker") is None:
-            x["speaker"] = last_speaker
-
-        if last_speaker is None or x["speaker"] != last_speaker:
-            lines.append([f"[{x["speaker"]}]"])
-            last_speaker = x["speaker"]
-
-        lines[-1].append(x["text"].strip())
-
-    result = "\n".join([" ".join(line) for line in lines])
+    result = format_diarized_text(result)
     if output_path:
         with open(output_path, "w", encoding="utf8") as f:
             f.write(result)
