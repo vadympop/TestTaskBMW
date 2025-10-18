@@ -30,7 +30,7 @@ class Config(BaseModel):
     questions_config: QuestionInstructionsConfig
 
     @classmethod
-    def load_config(cls, filename: str = "src/config/questions.json") -> "Config":
+    def load_config(cls, filename: str = "configs/questions.json") -> "Config":
         return cls(
             env=EnvConfig(),
             questions_config=QuestionInstructionsConfig.load_config(filename)

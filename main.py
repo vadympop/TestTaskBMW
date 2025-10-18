@@ -17,7 +17,7 @@ tapp = typer.Typer()
 config = Config.load_config()
 
 # Loading logging config
-with open("logging.json", "r", encoding="utf-8") as f:
+with open("configs/logging.json", "r", encoding="utf-8") as f:
     logging.config.dictConfig(json.loads(f.read()))
 
 

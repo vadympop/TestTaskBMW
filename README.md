@@ -9,7 +9,7 @@ Transcribes a voice call of manager and client into text using [WhisperX](https:
 poetry install
 ```
 ### 2. Customize analysis questions
-Edit the `questions.json` file to define the questions ChatGPT should answer about each transcript
+Edit the `configs/questions.json` file to define the questions ChatGPT should answer about each transcript
 ### 3. Configure environment variables
 Copy the .env.dist file to .env and fill in your API key
 
