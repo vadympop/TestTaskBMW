@@ -1,5 +1,8 @@
+import os.path
+
 import typer
 from pathlib import Path
+from itertools import chain
 
 from src.config import Config
 from src.pipeline import run_pipeline
@@ -7,6 +10,22 @@ from src.pipeline import run_pipeline
 
 tapp = typer.Typer()
 config = Config.load_config()
+
+
+def _validate_paths(audio_path: Path, sheet_path: str) -> None:
+    """
+    Raise exception if audio path is not exists or if sheet path is not exists.
+
+    :param audio_path: Path object to audio path.
+    :param sheet_path: String object to sheet path.
+    :return: None
+    """
+    if not audio_path.exists():
+        raise ValueError(f"{audio_path} invalid audio path")
+
+    if not os.path.exists(sheet_path):
+        raise ValueError(f"{sheet_path} invalid sheet path")
+
 
 
 @tapp.command()
@@ -22,7 +41,12 @@ def runmultiple(audios_dir: str, sheet_path: str) -> None:
     :return: None
     """
     files_dir = Path(audios_dir)
-    for audio_file in files_dir.rglob("*.mp3"):
+    if not files_dir.is_dir():
+        raise ValueError(f"{audios_dir} is not a directory")
+
+    _validate_paths(files_dir, sheet_path)
+
+    for audio_file in chain(files_dir.rglob("*.mp3"), files_dir.rglob("*.wav")):
         run_pipeline(config, sheet_path, audio_file)
 
 
@@ -39,6 +63,8 @@ def runsingle(audio_path: str, sheet_path: str) -> None:
     :return: None
     """
     audio_file = Path(audio_path)
+    _validate_paths(audio_file, sheet_path)
+
     run_pipeline(config, sheet_path, audio_file)
 
 
