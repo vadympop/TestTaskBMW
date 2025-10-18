@@ -1,3 +1,5 @@
+import logging
+
 import whisperx
 import gc
 import torch
@@ -10,12 +12,15 @@ torch.backends.cuda.matmul.allow_tf32 = False
 torch.backends.cudnn.allow_tf32 = False
 
 
+logger = logging.getLogger(__name__)
+
+
 def transcribe(
         audio_file: str,
         *,
         hf_token: str,
         device: str = "cuda",
-        batch_size: int = 16, # reduce if low on GPU mem
+        batch_size: int = 12, # reduce if low on GPU mem
         compute_type: str = "float16", # change to "int8" if low on GPU mem (may reduce accuracy)
         output_path: str = None
 ) -> str:
@@ -35,18 +40,21 @@ def transcribe(
     if not torch.cuda.is_available():
         device = "cpu"
         compute_type = "int8"
+        logger.warning("No cuda available, using cpu instead")
 
     converted_audio_output = "converted_audio.wav"
     convert_audio_to_wav(audio_file, converted_audio_output)
 
     model = whisperx.load_model("large-v3", device, compute_type=compute_type)
+    logger.info("Loaded whisper model")
 
     audio = whisperx.load_audio(converted_audio_output)
     result = model.transcribe(audio, language="uk", batch_size=batch_size)
+    logger.info("Transcribed audio")
 
-    print("Before alignment:")
-    for x in result["segments"]:
-        print(f"[{x['start']} --> {x['end']}] {x['text']}")
+    # print("Before alignment:")
+    # for x in result["segments"]:
+    #     print(f"[{x['start']} --> {x['end']}] {x['text']}")
 
     # delete model if low on GPU resources
     gc.collect(); torch.cuda.empty_cache(); del model
@@ -54,9 +62,9 @@ def transcribe(
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
 
-    print("\n\nAfter alignment:")
-    for x in result["segments"]:
-        print(f"[{x['start']} --> {x['end']}] {x['text']}")
+    # print("\n\nAfter alignment:")
+    # for x in result["segments"]:
+    #     print(f"[{x['start']} --> {x['end']}] {x['text']}")
 
     # delete model if low on GPU resources
     gc.collect(); torch.cuda.empty_cache(); del model_a
@@ -65,11 +73,15 @@ def transcribe(
     diarize_segments = diarize_model(audio, min_speakers=2, max_speakers=2)
 
     result = whisperx.assign_word_speakers(diarize_segments, result)
-    print(result)
+    logger.info("Audio was diarized")
 
     lines = []
     last_speaker = None
     for x in result["segments"]:
+        # In case if segment has no assigment speaker at all
+        if x.get("speaker") is None:
+            x["speaker"] = last_speaker
+
         if last_speaker is None or x["speaker"] != last_speaker:
             lines.append([f"[{x["speaker"]}]"])
             last_speaker = x["speaker"]
