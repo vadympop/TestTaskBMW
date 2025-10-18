@@ -115,7 +115,7 @@ def save_to_file(
 
     :raise: TypeError
     """
-    filetype = filename.partition(".")[2]
+    filetype = filename.split(".")[-1]
     if filetype == "csv":
         save_to_csv(filename, transcript, transcript_column, results)
     elif filetype == "xlsx":
