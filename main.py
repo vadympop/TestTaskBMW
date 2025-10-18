@@ -1,12 +1,14 @@
 import os.path
-
+import warnings
 import typer
+
 from pathlib import Path
 from itertools import chain
 
 from src.config import Config
 from src.pipeline import run_pipeline
 
+warnings.filterwarnings("ignore", category=UserWarning)
 
 tapp = typer.Typer()
 config = Config.load_config()
@@ -29,7 +31,10 @@ def _validate_paths(audio_path: Path, sheet_path: str) -> None:
 
 
 @tapp.command()
-def runmultiple(audios_dir: str, sheet_path: str) -> None:
+def runmultiple(
+        audios_dir: str = typer.Option(default=...),
+        sheet_path: str = typer.Option(default=...)
+) -> None:
     """
     Executes the full pipeline for all audios from specified directory:
     1. Transcribes the input.
@@ -51,7 +56,10 @@ def runmultiple(audios_dir: str, sheet_path: str) -> None:
 
 
 @tapp.command()
-def runsingle(audio_path: str, sheet_path: str) -> None:
+def runsingle(
+        audio_path: str = typer.Option(default=...),
+        sheet_path: str = typer.Option(default=...),
+) -> None:
     """
     Executes the full pipeline for specified audio path:
     1. Transcribes the input.
